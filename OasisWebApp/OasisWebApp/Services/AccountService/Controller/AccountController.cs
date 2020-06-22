@@ -1,23 +1,23 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using OasisWebApp.Controllers.Custom;
-using System.Security.Claims;
+using OasisWebApp.DTOs;
+using OasisWebApp.Services.AccountService.Service;
 using System.Threading.Tasks;
 
 namespace OasisWebApp.Services.AccountService.Controller
 {
     public class AccountController : CustomController
     { 
-        private readonly UserManager<IdentityUser> userManager;
-        private readonly SignInManager<IdentityUser> signInManager;
+        private readonly UserService userService;
+        private readonly SignService signService;
 
         public AccountController(
-            UserManager<IdentityUser> userManager,
-            SignInManager<IdentityUser> signInManager)
+            UserService userService,
+            SignService signService)
         {
-            this.userManager = userManager;
-            this.signInManager = signInManager;
+            this.userService = userService;
+            this.signService = signService;
         }
 
         [Route("")]
@@ -36,22 +36,15 @@ namespace OasisWebApp.Services.AccountService.Controller
         [Route("Login")]
         [HttpPost]
         public async Task<IActionResult> Login(
-            [FromForm] string username, 
-            [FromForm] string password)
+            [FromForm] UserDto userDto)
         {
-            var user = await userManager.FindByNameAsync(username);
-
+            var user = await userService.FindUserAsync(userDto.Username);
             if (user != null)
             {
-                var signInResult = await signInManager.PasswordSignInAsync(user, password, false, false);
-                if (signInResult.Succeeded)
-                {
-                    return RedirectToAction("Successful");
-                }
+                await signService.SignInAsync(userDto, userDto.Password);
+                return RedirectToAction("Index");
             }
-
-
-            return RedirectToAction("Index");
+            return View();
         }
 
         [Route("Register")]
@@ -63,21 +56,15 @@ namespace OasisWebApp.Services.AccountService.Controller
         [Route("Register")]
         [HttpPost]
         public async Task<IActionResult> Register(
-            [FromForm] string username,
-            [FromForm] string password)
+            [FromForm] UserDto user)
         {
-            var user = new IdentityUser()
-            {
-                UserName = username
-            };
-
-            var result = await userManager.CreateAsync(user, password);
+            var result = await userService.CreateUserAsync(user);
 
             if (result.Succeeded)
             {
-                await signInManager.PasswordSignInAsync(user, password, false, false);
+                await signService.SignInAsync(user, user.Password);
+                return RedirectToAction("Index");
             }
-
 
             return RedirectToAction("Successful");
         }
@@ -85,15 +72,8 @@ namespace OasisWebApp.Services.AccountService.Controller
         [Route("LogOut")]
         public async Task<IActionResult> LogOut()
         {
-            await signInManager.SignOutAsync();
-            return RedirectToAction("Successful");
-        }
-
-        [Route("Successful")]
-        public IActionResult Successful()
-        {
-            var message = "Успех!";
-            return Ok(message);
+            await signService.SignOutAsync();
+            return RedirectToAction("Index", "Home");
         }
     }
 }

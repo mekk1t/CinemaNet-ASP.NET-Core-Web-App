@@ -2,6 +2,7 @@
 using OasisWebApp.DTOs;
 using OasisWebApp.Database.Entities;
 using System;
+using Microsoft.AspNetCore.Identity;
 
 namespace OasisWebApp.Mapper
 {
@@ -42,6 +43,10 @@ namespace OasisWebApp.Mapper
 
             CreateMap<FilmDto, Film>();
 
+            CreateMap<UserDto, IdentityUser>()
+                .ForMember(d => d.UserName, opt => opt.MapFrom(src => src.Username));
+            CreateMap<IdentityUser, UserDto>()
+                .ForMember(d => d.Username, opt => opt.MapFrom(src => src.UserName));
 
         }
     }
