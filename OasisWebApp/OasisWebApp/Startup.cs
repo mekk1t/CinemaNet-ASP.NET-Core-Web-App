@@ -7,6 +7,7 @@ using OasisWebApp.Mapper;
 using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using OasisWebApp.Extensions;
+using Microsoft.Extensions.Hosting;
 
 namespace OasisWebApp
 {
@@ -34,13 +35,19 @@ namespace OasisWebApp
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            if (env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+            }
+
             app.UseStaticFiles();
             app.UseAuthentication();
             app.UseRouting();
             app.UseAuthorization();
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapDefaultControllerRoute();
+                endpoints.MapControllers();
+                endpoints.MapRazorPages();
             });
         }
     }
