@@ -6,9 +6,7 @@ using OasisWebApp.DTOs;
 using OasisWebApp.Services.FilmService.Repository.Filters;
 using OasisWebApp.Services.FilmService.Repository.Interface;
 using OasisWebApp.Services.FilmService.Services.Interface;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace OasisWebApp.Services.FilmService.Services

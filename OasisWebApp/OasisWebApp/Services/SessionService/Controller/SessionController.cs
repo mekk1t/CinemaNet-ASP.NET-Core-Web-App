@@ -3,8 +3,6 @@ using OasisWebApp.Controllers.Custom;
 using OasisWebApp.Services.SessionService.Repository.Filter;
 using OasisWebApp.Services.SessionService.Services.Interface;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace OasisWebApp.Services.SessionService.Controller
