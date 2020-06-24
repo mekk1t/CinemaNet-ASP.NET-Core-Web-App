@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using OasisWebApp.Database.Entities;
 using OasisWebApp.DTOs;
 using OasisWebApp.Services.CartService.Repository;
+using OasisWebApp.Services.TicketService;
 using System.Threading.Tasks;
 
 namespace OasisWebApp.Services.CartService
@@ -20,7 +22,6 @@ namespace OasisWebApp.Services.CartService
 
         public async Task<CartDto> Checkout(string cartId)
         {
-            // мб вернуть просто bool
             var cart = await cartRepository.Checkout(cartId);
             var cartDto = mapper.Map<CartDto>(cart);
             return cartDto;
@@ -30,9 +31,7 @@ namespace OasisWebApp.Services.CartService
         {
             await cartRepository.DeleteCartAsync(cartId);
         }
-
-        // мб искать по корзине определенного пользователя? или добавить доп. метод
-        public async Task<CartDto> GetCartAsync(string userId, string cartId = default)
+        public async Task<CartDto> GetCartAsync(string userId)
         {
             var cart = await cartRepository.GetCartAsync(userId);
             var cartDto = mapper.Map<CartDto>(cart);
@@ -46,21 +45,17 @@ namespace OasisWebApp.Services.CartService
             return cartDto;
         }
 
-        public async Task RemoveItemsAsync(CartItemDto cartItem, string cartId)
+        public async Task RemoveItemsAsync(string cartItemId, string cartId)
         {
-            // TODO: foreach + вызов ?
-            var cartItemDto = mapper.Map<CartItem>(cartItem);
-            await cartRepository.RemoveItemAsync(cartItemDto, cartId);
+            await cartRepository.RemoveItemAsync(cartItemId, cartId);
         }
 
         public async Task AddItemToCartAsync(
-            TicketDto ticket,
-            string userId,
-            string cartId = default)
+            int ticketId,
+            string userId)
         {
-            // TODO: как-то получить Ticket в бд-модели 
-            var ticketDto = mapper.Map<Ticket>(ticket);
-            await cartRepository.AddItemToCartAsync(ticketDto, userId);            
+
+            await cartRepository.AddItemToCartAsync(ticketId, userId);            
         }
         public async Task<string> GetCartIdAsync(string userId)
         {

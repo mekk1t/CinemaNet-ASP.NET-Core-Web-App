@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using OasisWebApp.Database;
 using OasisWebApp.Database.Entities;
+using OasisWebApp.Services.TicketService.Repository;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,11 +13,14 @@ namespace OasisWebApp.Services.CartService.Repository
     public class CartRepository
     {
         private readonly OasisCinemaDbContext dbContext;
+        private readonly TicketRepository ticketRepository;
 
         public CartRepository(
-            [FromServices] OasisCinemaDbContext dbContext)
+            OasisCinemaDbContext dbContext,
+            TicketRepository ticketRepository)
         {
             this.dbContext = dbContext;
+            this.ticketRepository = ticketRepository;
         }
 
         public async Task<Cart> Checkout(string cartId)
@@ -62,8 +66,9 @@ namespace OasisWebApp.Services.CartService.Repository
             await dbContext.SaveChangesAsync();
             return cart;
         }
-        public async Task RemoveItemAsync(CartItem cartItem, string cartId)
+        public async Task RemoveItemAsync(string cartItemId, string cartId)
         {
+            var cartItem = await dbContext.CartItems.SingleAsync(ci => ci.CartItemId == cartItemId);
             var cart = await GetCartAsync(cartId);
             if (cart != null)
             {
@@ -73,22 +78,11 @@ namespace OasisWebApp.Services.CartService.Repository
         }
 
         public async Task AddItemToCartAsync(
-            Ticket ticket,
-            string userId,
-            string cartId = default)
+            int ticketId,
+            string userId)
         {
-            Cart cart = new Cart();
-            if (cartId == default)
-            {
-                cart = await CreateCartAsync(userId);
-                cartId = cart.CartId;
-            }
-
-            if (cartId != default)
-            {
-                cart = await GetCartAsync(cartId, userId);
-            }
-
+            var cartId = await GetCartIdAsync(userId);
+            var ticket = await ticketRepository.GetTicketAsync(ticketId);
             var item = new CartItem()
             { 
                 CartId = cartId,
@@ -100,9 +94,18 @@ namespace OasisWebApp.Services.CartService.Repository
         }
         public async Task<string> GetCartIdAsync(string userId)
         {
+            string cartId = default;
             var cart = await dbContext.Cart
                 .SingleAsync(c => c.UserId == userId);
-            var cartId = cart.CartId;
+            if (cart != null)
+            {
+                cartId = cart.CartId;
+            }
+            if (cart == null)
+            {
+                cart = await CreateCartAsync(userId);
+                cartId = cart.CartId;
+            }
             return cartId;
         }
 

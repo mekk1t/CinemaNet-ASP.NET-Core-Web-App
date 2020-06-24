@@ -1,7 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.VisualBasic;
 using OasisWebApp.Controllers.Custom;
 using OasisWebApp.DTOs;
+using System.Collections;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
@@ -32,8 +36,13 @@ namespace OasisWebApp.Services.CartService.Controller
         }               
         public async Task<IActionResult> Checkout()
         {
-            await cartService.Checkout(cartId);
-            return Ok();
+            var cartCheckedOut = await cartService.Checkout(cartId);
+            ICollection<TicketDto> tickets = new Collection<TicketDto>();
+            foreach (var cartItem in cartCheckedOut.CartItems)
+            {
+                tickets.Add(cartItem.Ticket);
+            }
+            return RedirectToAction("New", "Order", tickets);
         }
 
         public async Task<IActionResult> DeleteCart()
@@ -48,21 +57,16 @@ namespace OasisWebApp.Services.CartService.Controller
             var cart = await cartService.GetCartAsync(userId);
             return View(cart);
         }
-
-        // [FromRoute] int TicketId
-        // TODO TicketService, TicketRepository
         public async Task<IActionResult> AddItem([FromRoute] int TicketId)
         {
-            var ticket = new TicketDto();
-            await cartService.AddItemToCartAsync(ticket, userId);
+            await cartService.AddItemToCartAsync(TicketId, userId);
             return RedirectToAction("Cart");
         }
 
-        // TODO: как забрать со страницы объект? И передать его в контроллер
-        public async Task<IActionResult> RemoveItem()
+        // TODO: забрать CartItemId, найти такой товар и удалить его из CartItems
+        public async Task<IActionResult> RemoveItem(string cartItemId)
         {
-            var cartItem = new CartItemDto();
-            await cartService.RemoveItemsAsync(cartItem, cartId);
+            await cartService.RemoveItemsAsync(cartItemId, cartId);
             return RedirectToAction("Cart");
         }
 
