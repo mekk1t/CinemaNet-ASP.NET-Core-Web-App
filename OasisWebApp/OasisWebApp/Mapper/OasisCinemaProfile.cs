@@ -2,7 +2,6 @@
 using OasisWebApp.DTOs;
 using OasisWebApp.Database.Entities;
 using System;
-using System.Linq;
 
 namespace OasisWebApp.Mapper
 {
@@ -59,6 +58,7 @@ namespace OasisWebApp.Mapper
                     }
                 });
 
+            CreateMap<Order, OrderDto>();
         }
     }
 }
