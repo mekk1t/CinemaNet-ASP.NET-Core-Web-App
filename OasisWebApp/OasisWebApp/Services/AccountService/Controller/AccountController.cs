@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using OasisWebApp.Controllers.Custom;
 using OasisWebApp.DTOs;
@@ -7,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace OasisWebApp.Services.AccountService.Controller
 {
+    // TODO: избавиться от переадресации на ORderController? И просто обращаться к OrderService + TicketService
     public class AccountController : CustomController
     {
         private readonly AccountService accountService;
@@ -53,11 +53,8 @@ namespace OasisWebApp.Services.AccountService.Controller
         public async Task<IActionResult> Register(
             [FromForm] UserDto user)
         {
-
-            if (true)
-            {
-                return RedirectToAction("Index");
-            }
+            await accountService.Register(user);
+            return RedirectToAction("Index");
         }
 
         [Route("LogOut")]
@@ -73,5 +70,15 @@ namespace OasisWebApp.Services.AccountService.Controller
         {
             return Ok("Is admin");
         }
+
+        [Route("Orders")]
+        [Authorize]
+        public IActionResult Orders()
+        {
+            return RedirectToAction("Orders", "Order");
+        }
+
+
+
     }
 }

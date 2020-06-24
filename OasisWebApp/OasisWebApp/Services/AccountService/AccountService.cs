@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using OasisWebApp.DTOs;
 using OasisWebApp.Models;
+using System.Collections;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace OasisWebApp.Services.AccountService
@@ -56,6 +58,21 @@ namespace OasisWebApp.Services.AccountService
         public async Task SignOutUser()
         {
             await signInManager.SignOutAsync();
+        }
+
+        public async Task<bool> Register (UserDto userDto)
+        {
+            var password = userDto.Password;
+            var user = new IdentityUser()
+            {
+                UserName = userDto.Username
+            };
+            var registration = await userManager.CreateAsync(user, password);
+            if (registration.Succeeded)
+            {
+                return true;
+            }
+            return false;
         }
     }
 }
