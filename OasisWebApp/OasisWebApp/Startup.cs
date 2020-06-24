@@ -5,7 +5,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using OasisWebApp.Mapper;
 using AutoMapper;
-using Microsoft.AspNetCore.Http;
 using OasisWebApp.Extensions;
 using Microsoft.Extensions.Hosting;
 
